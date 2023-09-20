@@ -30,9 +30,10 @@ async function createTables() {
         id SERIAL PRIMARY KEY,
         username varchar(255) UNIQUE NOT NULL,
         password varchar(255),
-        email varchar(255),
+        email varchar(255) UNIQUE NOT NULL,
         first_name varchar(255),
         last_name varchar(255),
+        role varchar(255) DEFAULT user NOT NULL,
         address_1 varchar(255),
         address_2 varchar(255),
         city varchar(255) NOT NULL,
@@ -44,7 +45,7 @@ async function createTables() {
         shipping_city varchar(255) NOT NULL,
         shipping_state varchar(255) NOT NULL,
         shipping_zip_code INTEGER,
-        shipping_counry varchar(255) NOT NULL
+        shipping_country varchar(255) NOT NULL
         );
       `);
     console.log("users table crated");
@@ -54,17 +55,17 @@ async function createTables() {
       user_id INTEGER REFERENCES users(Id),
       billing_address_1 varchar(255),
       billing_address_2 varchar(255),
-      billing_city TEXT NOT NULL,
-      billing_state TEXT NOT NULL,
-      billing_zip_code INTEGER NOT NULL,
+      billing_city TEXT,
+      billing_state TEXT,
+      billing_zip_code INTEGER,
       shipping_address_1 varchar(255),
       shipping_address_2 varchar(255),
-      shipping_city varchar(255) NOT NULL,
-      shipping_state varchar(255) NOT NULL,
-      shipping_zip_code INTEGER NOT NULL,
-      shipping_country varchar(255) NOT NULL,
-      email varchar(255) UNIQUE NOT NULL,
-      order_total MONEY,
+      shipping_city varchar(255),
+      shipping_state varchar(255),
+      shipping_zip_code INTEGER,
+      shipping_country varchar(255),
+      email varchar(255),
+      order_total NUMERIC,
       use_default_address BOOLEAN DEFAULT FALSE,
       checkout_complete BOOLEAN DEFAULT FALSE,
       order_fulfilled BOOLEAN DEFAULT FALSE
@@ -76,7 +77,7 @@ async function createTables() {
       CREATE TABLE items (
         id SERIAL PRIMARY KEY, 
         title varchar(255),
-        price MONEY,
+        price NUMERIC,
         inventory INTEGER,
         image_name varchar(100)
       );
@@ -88,7 +89,7 @@ async function createTables() {
       id SERIAL PRIMARY KEY,
       "itemId" INTEGER REFERENCES items(id),
       "orderId" INTEGER REFERENCES orders(id),
-      price MONEY,
+      "orderPrice" NUMERIC,
       qty INTEGER
       );
       `);
@@ -105,8 +106,8 @@ async function createTables() {
     await client.query(`
       CREATE TABLE item_category (
       id SERIAL PRIMARY KEY,
-      "item_id" INTEGER REFERENCES items(id),
-      "category_id" INTEGER REFERENCES category(id)
+      item_id INTEGER REFERENCES items(id),
+      category_id INTEGER REFERENCES category(id)
       );
       `);
     console.log("item_category table created");
