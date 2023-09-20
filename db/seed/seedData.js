@@ -1,4 +1,4 @@
-import { createUser } from "../users/createUser.js";
+import { createUser } from "../users.js";
 import { createOrder } from "../orders.js";
 import {
   createItem,
@@ -27,8 +27,27 @@ async function createInitialUsers() {
         shipping_city: "Mantua",
         shipping_state: "UT",
         shipping_zip_code: 84324,
-        shipping_counry: "USA",
+        shipping_country: "USA",
       },
+      {
+        username: "billybob",
+        password: "funkyfrogs$5",
+        email: "billy@myurl.com",
+        first_name: "billy",
+        last_name: "bob",
+        address_1: "233 My Street",
+        address_2: "apt. 27",
+        city: "Ames",
+        state: "IA",
+        zip_code: 50613,
+        country: "USA",
+        shipping_address_1: "250 Thatstreet",
+        shipping_address_2: null,
+        shipping_city: "Omaha",
+        shipping_state: "NE",
+        shipping_zip_code: 84324,
+        shipping_country: "USA"
+      }
     ];
 
     await Promise.all(usersToCreate.map(createUser));
@@ -60,7 +79,40 @@ async function createInitialOrders() {
         shipping_country: "USA",
         order_total: 2525.25,
       },
-    ];
+      {
+        user_id: 1,
+        billing_address_1: "353 My Street",
+        billing_address_2: "apt. 2",
+        billing_city: "Hit",
+        billing_state: "IA",
+        billing_zip_code: 50613,
+        email: "albert@myurl.com",
+        shipping_address_1: "353 My Street",
+        shipping_address_2: "apt. 2",
+        shipping_city: "Hit",
+        shipping_state: "IA",
+        shipping_zip_code: 50613,
+        shipping_country: "USA",
+        order_total: 100.25,
+        checkout_complete: true,
+      },
+      {
+        user_id: 2,
+        billing_address_1: "233 My Street",
+        billing_address_2: "apt. 27",
+        billing_city: "Ames",
+        billing_state: "IA",
+        billing_zip_code: 50613,
+        email: "billy@myurl.com",
+        shipping_address_1: "250 Thatstreet",
+        shipping_address_2: null,
+        shipping_city: "Omaha",
+        shipping_state: "NE",
+        shipping_zip_code: 84324,
+        shipping_country: "USA",
+        order_total: 2500.36
+      }
+    ]
     await Promise.all(ordersToCreate.map(createOrder));
 
     console.log("Finished creating initial orders!");
@@ -96,7 +148,7 @@ async function createInitialItems() {
         title: "Green Shield, Shade Clot Plastic Clips",
         price: 12.75,
         inventory: 300,
-        image_name: "extension_plugs.jpg",
+        image_name: "tie_down_clips.jpg",
       },
     ];
     await Promise.all(ordersToCreate.map(createItem));
@@ -115,26 +167,38 @@ async function createInitialOrderItem() {
       {
         itemId: 1,
         orderId: 1,
-        price: 101.2,
+        orderPrice: 202.4,
         qty: 2,
       },
       {
         itemId: 2,
         orderId: 1,
-        price: 25.75,
+        orderPrice: 77.25,
         qty: 3,
       },
       {
         itemId: 3,
-        orderId:1,
-        price: 21.55,
+        orderId: 3,
+        orderPrice: 21.55,
         qty: 1,
       },
       {
         itemId: 4,
-        orderId:1,
-        price: 12.75,
+        orderId: 2,
+        orderPrice: 127.50,
         qty: 10,
+      },
+      {
+        itemId: 2,
+        orderId: 2,
+        orderPrice: 25.75,
+        qty: 1,
+      },
+      {
+        itemId: 1,
+        orderId: 3,
+        orderPrice: 506.00,
+        qty: 5,
       },
     ];
     await Promise.all(ordersToCreate.map(attachItemToOrder));

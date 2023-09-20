@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { client } from "./client.js";
 
 async function createItem({ title, price, inventory, image_name }) {
@@ -17,7 +16,7 @@ async function createItem({ title, price, inventory, image_name }) {
 
     return item;
   } catch (error) {
-    throw error;
+    console.error(`db error Creating Item: ${error}`);
   }
 }
 
@@ -46,7 +45,7 @@ async function updateItem({ id, ...fields }) {
 
     return item;
   } catch (error) {
-    throw error;
+    console.error(`db error updating item: ${error}`);
   }
 }
 
@@ -60,7 +59,7 @@ async function getAllItems() {
     );
     return rows;
   } catch (error) {
-    throw error;
+    console.error(`db error getting all items: ${error}`);
   }
 }
 
@@ -79,7 +78,7 @@ async function getItemById(id) {
 
     return item;
   } catch (error) {
-    throw error;
+    console.error(`db error getting item by id: ${error}`);
   }
 }
 
@@ -98,7 +97,7 @@ async function getItemByTitle(title) {
 
     return item;
   } catch (error) {
-    throw error;
+    console.error(`db error getting item by title: ${error}`);
   }
 }
 
@@ -116,43 +115,60 @@ async function getItemByCategory(categoryId) {
 
     return rows;
   } catch (error) {
-    throw error;
+    console.error(`db error getting items by category ${error}`);
   }
 }
 
-async function attachItemToOrder({ itemId, orderId, price, qty }) {
-  console.log('ORDER_ITEM: ', qty)
+async function attachItemToOrder({ itemId, orderId, orderPrice, qty }) {
   try {
     const { rows } = await client.query(
       `
             INSERT INTO ordered_items
-            ("itemId", "orderId", price, qty) 
+            ("itemId", "orderId", "orderPrice",  qty) 
             VALUES ($1, $2, $3, $4)
             RETURNING *;
             `,
-      [itemId, orderId, price, qty]
+      [itemId, orderId, orderPrice, qty]
     );
 
     return rows;
   } catch (error) {
-    throw error;
+    console.error(`db error attaching item to order: ${error}`);
   }
 }
 
-async function removeItemFromOrder({ itemId, orderId }) {
+async function removeItemFromOrder(id) {
   try {
     const { rows } = await client.query(
       `
             DELETE FROM ordered_items
-            WHERE "itemId" = $1 AND "orderId" = $2
+            WHERE id = $1
             RETURNING *;
             `,
-      [itemId, orderId]
+      [id]
     );
 
     return rows;
   } catch (error) {
-    throw error;
+    console.error(`db error removing item from order: ${error}`);
+  }
+}
+
+async function updateItemQtyInOrder(id, qty) {
+  try {
+    const { rows: [item] } = await client.query(
+      `
+      UPDATE ordered_items
+      SET qty = $1
+      WHERE id = $2
+      RETURNING *;
+      `,
+      [qty, id]
+    )
+
+    return item;
+  } catch (error) {
+    console.error(`db error updating item qty in order: ${error}`)
   }
 }
 
@@ -170,7 +186,7 @@ async function attachItemToCategory({ itemId, categoryId }) {
 
     return rows;
   } catch (error) {
-    throw error;
+    console.error(`db error attaching item to category: ${error}`);
   }
 }
 
@@ -187,7 +203,37 @@ async function removeItemFromCategory({ itemId, categoryId }) {
 
     return rows;
   } catch (error) {
-    throw error;
+    console.error(`db error removing item from category: ${error}`);
+  }
+}
+
+async function itemInCategory({ itemId, categoryId }) {
+  const data = [itemId, categoryId];
+  const sql = `SELECT * FROM item_category WHERE item_id = $1 AND category_id = $2;`;
+  const { rows: item_category } = await client.query(sql, data);
+
+  //if row === 0 then there are no records.  so result is the item is NOT in the category
+  const result = item_category.length === 0 ? false : true;
+
+  return result;
+}
+
+async function deleteItem(itemId) {
+  try {
+    const {
+      rows: [item],
+    } = await client.query(
+      `
+      DELETE FROM items
+      WHERE id = $1
+      RETURNING *; 
+      `,
+      [itemId]
+    );
+
+    return item;
+  } catch (error) {
+    console.error(`db error deleting an item: ${error}`);
   }
 }
 
@@ -202,4 +248,7 @@ export {
   getItemByCategory,
   attachItemToCategory,
   removeItemFromCategory,
+  itemInCategory,
+  deleteItem,
+  updateItemQtyInOrder
 };
